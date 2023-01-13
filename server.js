@@ -27,6 +27,9 @@ app.set('view engine', 'ejs')
 app.use('/public', express.static(path.join(__dirname, '/public')))
 app.use('/api/cart', cartsRoute)
 app.use('/api/products', productsRoute)
+app.get('*', function(req, res){
+    res.status(404).json({error:404, url:req.url, method:'GET', description:'Not found'});
+  });
 
 //STARTING SERVER
 app.listen(app.get('PORT'), (err) => {

@@ -1,0 +1,34 @@
+<%- include('partials/header'); %>
+
+<% if (admin) { %>
+
+    <div class="form-wrapper">
+
+        <div class="title-form-container">
+            <h2 class="title">Upload your product!</h2>
+        </div>
+        
+        <div class="form-container">
+            
+            <form action="http://localhost:8080/api/products/update/<%= product._id %>" method="post" class="form">
+           
+                <% if (error) { %>
+
+                    <strong class="error"><%= error %></strong>
+                    
+                <% } %>
+
+                <input type="text" name="name" placeholder="Name" value="<%= product.name %>" class="input">
+                <input type="number" name="price" placeholder="Price" value="<%= product.price %>" class="input">
+                <input type="text" name="description" placeholder="Description" value="<%= product.description %>" class="input">
+                <input type="number" name="stock" placeholder="Stock" value="<%= product.stock %>" class="input">
+                <input type="text" name="thumbnail" placeholder="Thumbnail" value="<%= product.thumbnail %>" class="input">
+
+                <button class="btn-upload">Send</button>
+            </form>
+        </div>
+
+    </div>
+
+<% } %>
+<%- include('partials/footer'); %>

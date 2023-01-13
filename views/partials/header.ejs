@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <title>My APP</title>
+</head>
+<body>
+
+    <div class="nav-container">
+        <nav class="nav">
+
+            <div class="left">
+                <header class="logo-container itm">
+                    <a href="/api/products"><h1 class="logo">Hermenegildo</h1></a>
+                </header>
+
+                <ul class="item-container itm">
+                    <li class="item">Home</li>
+                    <li class="item">Women</li>
+                    <li class="item">Man</li>
+                    
+                </ul>
+            </div>
+            
+            <div class="right">
+
+                <div class="cart-icon-container">
+
+                    <div class="circle-quantity">
+                        <span class="circle-counter"><%= cartCounter %></span>
+                    </div>
+
+                    <span class="material-symbols-outlined cart-icon">shopping_cart</span> 
+                </div>
+                    
+                <div class="searching-bar-container itm">
+                    
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Found your product!">
+                </div>
+            </div>
+            
+
+        </nav>
+    </div>

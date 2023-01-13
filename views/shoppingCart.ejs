@@ -1,0 +1,34 @@
+<%- include('partials/header'); %>
+
+    <div class="products-list-wrapper">
+
+        <h2 class="featured-title">Shopping cart</h2>
+        <% if (products) { %>
+            <button class="delete-all btn">Delete all</button>
+            <div class="product-list">
+
+                
+
+                <% products.forEach(function(product){ %>
+                    <div class="product">
+
+                        <div class="img-container">
+                            <img src="<%= product.thumbnail %>" onerror="this.onerror=null;this.src='https://icon-library.com/images/icon-picture/icon-picture-5.jpg';" alt="">
+                        </div>
+
+                        <div class="product-details">
+                            <h2 class="product-title"><%= product.name %></h3>
+                            <h3 class="product-price">$<%= product.price %></h4>
+                            <button class="product-button-remove rm btn" data-id="<%= product._id %>">Remove</button>
+                        </div>
+                    </div>   
+                <% }); %>
+
+            </div>
+        <% }else{%>
+            <h2 class="error-violet">You don't have products in your cart! <a class="buy-now" href="/api/products">Buy now!</a></h2>
+        <% } %>
+
+    </div>
+
+    <%- include('partials/footer'); %>

@@ -1,0 +1,90 @@
+<%- include('partials/header'); %>
+
+    <div class="bg">
+        <div class="about-us-wrapper">
+
+            <h2 class="title-about-us">About us</h2>
+
+            <div class="about-us-container">
+
+                <div class="about-us-img-container">
+                    <img src="https://i2.wp.com/blog.contactpigeon.com/wp-content/uploads/2019/09/Fashion-eCommerce-Marketing-Automation.png?fit=1300%2C644&ssl=1">
+                </div>
+                <p class="about-us-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, eius. Amet, nulla temporibus magni et adipisci placeat nobis esse vero, vitae totam impedit eum. Autem odit ipsum doloribus magnam culpa
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, eius. Amet, nulla temporibus magni et adipisci placeat nobis esse vero, vitae totam impedit eum. Autem odit ipsum doloribus magnam culpa
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, eius. Amet, nulla temporibus magni et adipisci placeat nobis esse vero, vitae totam impedit eum. Autem odit ipsum doloribus magnam culpa
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto, eius. Amet, nulla temporibus magni et adipisci placeat nobis esse vero, vitae totam impedit eum. Autem odit ipsum doloribus magnam culpa
+            </div>
+        </div>
+
+        <div class="products-list-wrapper">
+
+            <h2 class="featured-title">Product list</h2>
+
+            <div class="product-list">
+                <% products.forEach(function(product){ %>
+                    <div class="product">
+
+                        <div class="img-container">
+                            <img src="<%= product.thumbnail %>" onerror="this.onerror=null;this.src='https://icon-library.com/images/icon-picture/icon-picture-5.jpg';" alt="">
+                        </div>
+
+                        <div class="product-details">
+                            <h2 class="product-title"><%= product.name %></h3>
+                            <h3 class="product-price">$<%= product.price %></h4>
+                            <button class="product-button btn" data-id="<%= product._id %>">Add</button>
+                        </div>
+
+                        <div class="buttons-container">
+
+                            <% if (admin) { %>
+                                <div class="admin-buttons">
+
+                                    <button class="btn-delete btn" data-id="<%= product._id %>">Delete</button>
+                                    <button class="btn-update btn"><a href="/api/products/update/<%= product._id %>">Update</a></button>
+
+                                </div>
+                            <% } %>
+                            
+                        </div>
+                    </div>   
+                <% }); %>
+            </div>
+        </div>
+
+        <% if (admin) { %>
+
+            <div class="form-wrapper">
+
+                <div class="title-form-container">
+                    <h2 class="title">Upload your product!</h2>
+                </div>
+                
+                <div class="form-container">
+                    
+                    <form action="http://localhost:8080/api/products" method="post" class="form">
+                   
+                        <% if (error) { %>
+
+                            <strong class="error"><%= error %></strong>
+                            
+                        <% } %>
+
+
+                        <input type="text" name="name" placeholder="Name" class="input">
+                        <input type="number" name="price" placeholder="Price" class="input">
+                        <input type="text" name="description" placeholder="Description" class="input">
+                        <input type="number" name="stock" placeholder="Stock" class="input">
+                        <input type="text" name="thumbnail" placeholder="Thumbnail" class="input">
+        
+                        <button class="btn-upload">Send</button>
+                    </form>
+                </div>
+        
+            </div>
+
+        <% } %>
+
+    </div>
+
+<%- include('partials/footer'); %>

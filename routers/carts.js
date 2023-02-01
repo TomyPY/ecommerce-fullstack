@@ -1,56 +1,21 @@
-import e, { Router } from 'express'
-import database from '../database/database_handler.js'
+import { Router } from 'express'
+import carts from '../controllers/carts.js'
 
 const router = Router()
 
-router.get('/products', (req, res) =>{
+//Creates a cart
+router.post('/', carts.createCart)
 
-    let shoppingCart = database.getCart()
-    let cart = database.getCart()
-    let cartCounter = cart.products.length > 0 ? cart.products.length : 0
+//Get products of a cart
+router.get('/products', carts.getProducts)
 
-    res.render('shoppingCart', {products:shoppingCart.products, cartCounter: cartCounter})
+//Put a new product on an existing cart
+router.post('/:id/products', carts.updateProductToCart)
 
-})
+//Delete a product of an existing cart
+router.delete('/:id/products/:prod_id', carts.deleteProduct)
 
-//DEVUELVE ID DEL CARRITO O CREA UNO Y DEVUELVE ID
-router.post('/', (req, res) =>{
-    res.json(database.getCart()._id)
-})
-
-router.post('/:id/products', async (req,res)=>{
-
-    let cartId = req.params.id
-    let productId = req.body._id 
-
-    let result = await database.addToCart(cartId, productId)
-
-    if(!result.ok){
-        res.json(result)
-    }
-   
-    res.json({'ok':true, error:false})
-
-})
-
-router.delete('/:id', async(req,res)=>{
-
-    let result = database.deleteCart(req.params.id)
-    
-    if (!result.ok){
-        res.json({error:"400", route:`http://localhost:8080/api/cart/delete/${req.params.id}`, method:"delete", description:result.description})
-        return
-    }
-
-    res.json({ok:true, error:false})
-
-})
-
-router.delete('/:id/products/:prod_id', async(req,res)=>{
-
-    database.deleteProductCart(parseInt(req.params.id), parseInt(req.params.prod_id))
-    res.json({ok:true})
-    
-})
+//Delete a cart
+router.delete('/:id', carts.deleteCart)
 
 export default router

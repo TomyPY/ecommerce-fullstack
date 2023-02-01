@@ -51,8 +51,12 @@ class Contenedor{
             return undefined
         }
 
-        let oldProduct = this.products[_id]
-
+        let oldProduct = this.products.map(element=>{
+            if(element._id == _id){
+                return element
+            }
+        })
+        
         obj._id = _id
         obj.timestamp = oldProduct.timestamp
 

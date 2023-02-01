@@ -9,8 +9,6 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 const app = express()
 
-console.log(Date.now())
-
 //VARIABLES
 app.set('PORT', process.env.PORT || 8080)
 

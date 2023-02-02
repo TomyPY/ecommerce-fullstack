@@ -4,6 +4,7 @@ import path from 'path'
 
 import cartsRoute from './routers/carts.js'
 import productsRoute from './routers/products.js'
+import {connectMongo} from './databases/mongoDB/conn.js'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url)) 
 
@@ -29,6 +30,7 @@ app.get('*', function(req, res){
     res.status(404).json({error:404, url:req.url, method:'GET', description:'Not found'});
   });
 
+
 //STARTING SERVER
 app.listen(app.get('PORT'), (err) => {
 
@@ -40,4 +42,5 @@ app.listen(app.get('PORT'), (err) => {
     console.log(`Servidor escuchando el puerto ${app.get('PORT')}`)
  
 })
+connectMongo()
 

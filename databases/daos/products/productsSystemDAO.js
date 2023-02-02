@@ -1,32 +1,32 @@
-import SystemContainer from '../../system/database_handler'
+import SystemContainer from '../../system/database_handler.js'
 
 class ProductsSystemDAO extends SystemContainer {
     constructor() {
         super("products")
     }
-    async listAll(){
-            const data = await this.getAll();
-            return data;
+    async getAll(){
+            const data = await this.getProducts()
+            return data
     }
 
-    async listById(id){
-        const data = await this.getById(id);
-        return data;
+    async getById(_id){
+        const data = await this.getProduct(_id)
+        return data
     }
 
-    async save(product){
-        const data = await this.saveProduct(product);
-        return data;
+    async createProduct(product){
+        const data = await this.saveProduct(product)
+        return data
     }
 
-    async update(product, id){
-        const data = await this.updateProduct(product, id);
-        return data;
+    async updateById(product, _id){
+        const data = await this.updateProduct(product, _id)
+        return data
     }
 
-    async delete(id){
-        const data = await this.deleteById(id);
-        return data;
+    async deleteById(_id){
+        const data = await this.deleteProduct(_id)
+        return data
     }
 }
 

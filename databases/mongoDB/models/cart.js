@@ -1,3 +1,13 @@
-import { Model, Schema } from 'mongoose'
+import { model, Schema } from 'mongoose'
 
-export default true
+const cartSchema = new Schema(
+    {
+        _id: Number,
+        products: Array
+    },
+    {
+        timestamp: true
+    }
+)
+
+export default model("Cart", cartSchema)

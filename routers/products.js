@@ -13,6 +13,6 @@ router.post('/', products.createProduct)
 
 router.post('/update/:id', products.updateById)
 
-router.delete('/delete/:id', products.getAll)
+router.delete('/delete/:id', products.deleteById)
 
 export default router

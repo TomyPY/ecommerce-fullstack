@@ -1,135 +1,184 @@
-import conn from './conn'
-import productModel from './models/product.js'
-import cartModel from './models/cart.js'
+import product from './models/product.js'
 
 class ContainerMongoDB {
-    constructor(model) {
+    constructor(model = Collection) {
         this.model = model
     }
-    async getAll() {
-        const data = await this.model.find({});
-        return data;
+
+    async getProducts() {
+        try {
+            const data = await this.model.find({})
+            return { res: data ? data : [], status: true, error: false }
+        } catch (err) {
+            return { res: false, status: false, error: err }
+        }
     }
 
-    async getById(id) {
-        const data = await this.model.find({ id: id });
-        if (data.length == 0) {
-            return false
-        } else {
-            return data[0];
+    async getProduct(_id) {
+        try {
+            const data = await this.model.findOne({ _id: _id })
+            return { res: data?data:[], status: true, error: false }
+        } catch (err) {
+            return { res: false, status: false, error: err }
         }
     }
 
     async saveProduct(object) {
-        const data = await this.model.find({});
-        const ids = data.map((product) => product.id);
-        const idMaximo = Math.max(...ids);
-            object.id = ids ? idMaximo : 1
-            object.timestamp = Date.now();
+        try {
+            const data = await this.model.find({})
+            const ids = data.map((product) => product._id)
+            const idMaximo = Math.max(...ids)
+
+            object._id = ids.length>0?idMaximo+1:1
+            object.timestamp = Date.now()
+            
             await this.model.create(object)
-            return true
+            return { res: true, status: true, error: false }
+        } catch (err) {
+            if(err.name==='ValidationError'){
+                return { res: false, status: false, error: 'All fields are required unless thumbnail' }
+            }
+            return { res: false, status: false, error: err.message }
+        }
+    }
+
+    async updateProduct(object, _id) {
+        try {
+
+            const data = await this.model.findOne({ _id: _id })
+
+            if (!data) {
+                return { res: false, status: false, error: "The ID doesn't exist" }
+            }
+
+            await this.model.updateOne({ _id: _id },
+                {
+                    $set:
+                    {
+                        "name": object.name,
+                        "price": object.price,
+                        "thumbnail": object.thumbnail,
+                        "stock": object.stock,
+                        "description": object.description
+                    }
+                })
+
+            return { res: true, status: true, error: false }
+
+        } catch (err) {
+            return { res: false, status: false, error: err }
         }
 
-    async updateProduct(object, id) {
-       
-        const data = await this.model.find({ id: id });
-        object.id = id;
-        object.timestamp = data.timestamp;
-        await this.model.updateOne({ id: id },
-            {
-                $set:
-                {
-                    "nombre": object.nombre,
-                    "precio": object.precio,
-                    "codigo": object.codigo,
-                    "thumbnail": object.thumbnail,
-                    "stock": object.stock,
-                    "detalle": object.detalle
-                }
-            })
     }
 
-    async deleteById(id) {
-        const data = await this.model.find({ id: id });
-        if (data.length == 0) {
-            return false
-        } else {
-            await this.model.deleteOne({ id: id })
-        }     
+    async deleteProduct(_id) {
+        try {
+            const data = await this.model.findOne({ _id: _id })
+ 
+            if (!data) {
+                return { res: false, status: false, error: "The ID doesn't exist" }
+            }
+
+            await this.model.deleteOne({ _id: _id })
+            return { res: true, status: true, error: false }
+
+        } catch (err) {
+
+            return { res: false, status: false, error: err }
+        }
     }
 
-    async getCartById(id) {
-        const data = await this.model.find({ id: id }, {"products": 1, "_id": 0 });
-        if (data.length == 0) {
-            return false
-        } else {
-            return data[0].products;
+
+
+    async getCartById(_id) {
+        try {
+            const data = await this.model.findOne({ _id: _id })
+
+            if (!data) {
+                return { res: false, status: false, error: "The ID doesn't exist" }
+            }
+
+            return { res: data, status: true, error: false }
+
+        } catch (err) {
+            return { res: false, status: false, error: err }
         }
     }
 
     async saveCart() {
-        this.newCart(main.userLogged, []);
-        return { id: main.userLogged };
-    }
-
-    async deleteCart(id) {
-        const idParsed = parseInt(id)
-
-        if (await this.cartFinder(main.userLogged).length == 0) {
-            return { error: "carrito no encontrado" };
-        } else {
-            try {
-                await this.model.deleteOne({ id: idParsed });
-            } catch (error) {
-                console.log(error);
+        try {
+            const cart = {
+                _id: 1,
+                products: []
             }
+
+            await this.model.insertOne(cart)
+
+            return { res: cart._id, status: true, error: err }
+        } catch (err) {
+            return { res: false, status: false, error: err }
         }
     }
 
-    async addToCart(id, cant) {
+    async deleteCart(_id) {
+        try {
 
-        if (await this.productExistence(id) == 0) {
-            await this.model.updateOne({ "id": 1 }, { $addToSet: { products: productadd } })
-        } else {
-            const query = { id: 1, "products.id": parseInt(id)};
-            const updateDocument = {
-                $set: { "products.$.stock": parseInt(cant)}
-            };
-            await this.model.updateOne(query, updateDocument)
+            const cart = await this.model.findOne({ "_id": _id })
+
+            if (!cart) {
+                return { res: false, status: false, error: "The ID doesn't exist" }
+            }
+
+            await this.model.deleteOne({ _id: idParsed })
+            return { res: cart._id, status: true, error: false }
+
+        } catch (err) {
+            return { res: false, status: false, error: err }
         }
     }
 
-    async deleteFromCart(idUser, idProd) {
+    async addToCart(cartId, prodId, cant) {
+        try {
 
-        const idUsrParsed = parseInt(idUser)
-        const idPrdParsed = parseInt(idProd)
-        if (await this.cartFinder(idUser) == 0) {
-            return false
-        } else if (await this.productExistence(idPrdParsed) == 0) {
-            return false
-        } else {
-            await this.model.updateOne({ "id": idUsrParsed }, { $pull: { products: { id: idPrdParsed } } })
+            if (!await this.model.findOne({ _id: cartId })) {
+                return { res: false, status: false, error: "The cartID doesn't exist" }
+            }
+
+            if (!await product.findOne({ _id: prodId })) {
+                return { res: false, status: false, error: "The prodID doesn't exist" }
+            }
+
+            if (await this.model.findOne({ "_id": cartId, "products._id": prodId })) {
+                await this.model.updateOne({ "_id": cartId, "products._id": prodId }, { $set: { "products.$.quantity": cant } })
+            } else {
+                await this.model.updateOne({ "_id": cartId }, { $push: { 'products': { "_id": prodId, "quantity": cant } } })
+            }
+
+            return { res: { cartId: cartId, prodId: prodId }, status: true, error: false }
+        } catch (err) {
+            return { res: false, status: false, error: err }
         }
     }
 
-    async newCart(id, products) {
+    async deleteFromCart(cartId, prodId) {
+        try {
+            if (!await this.model.findOne({ _id: cartId })) {
+                return { res: false, status: false, error: "The cartID doesn't exist" }
+            }
 
-        const cart = { id: id, timestamp: Date.now(), products: products };
-        await this.model.create(cart)
+            if (!await this.model.findOne({ _id: cartId, "products._id": prodId })) {
+                return { res: false, status: false, error: "The prodID doesn't exist" }
+            }
+
+            await this.model.updateOne({ "_id": cartId }, { $pull: { products: { _id: prodId } } })
+
+            return { res: { cartId: cartId, prodId: prodId }, status: true, error: false }
+
+        } catch (err) {
+            return { res: false, status: false, error: err }
+        }
     }
 
-    async cartFinder(id) {
-
-        const data = await this.model.find({ id: id });
-        return data.length;
-    }
-
-    async productExistence(id) {
-
-        const idParsed = parseInt(id)
-        const result = await this.model.find({ $and: [{ "id": main.userLogged}, { "products.id": idParsed }]})
-        return result.length
-    }
 }
 
 export default ContainerMongoDB

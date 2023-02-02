@@ -1,32 +1,37 @@
-import SystemContainer from '../../system/database_handler'
+import SystemContainer from '../../system/database_handler.js'
 
 class CartsSystemDAO extends SystemContainer {
     constructor() {
         super("carts")
     }
-    async listAll(){
-            const data = await this.getAll();
-            return data;
+    async getAll(){
+        const data = await this.getCarts()
+        return data
     }
 
-    async listById(id){
-        const data = await this.getById(id);
-        return data;
+    async getById(_id){
+        const data = await this.getCart(_id)
+        return data
     }
 
-    async save(product){
-        const data = await this.saveProduct(product);
-        return data;
+    async createCart(){
+        const data = await this.saveCart()
+        return data
     }
 
-    async update(product, id){
-        const data = await this.updateProduct(product, id);
-        return data;
+    async updateById(cartId, productId){
+        const data = await this.updateCart(cartId, productId)
+        return data
     }
 
-    async delete(id){
-        const data = await this.deleteById(id);
-        return data;
+    async deleteById(_id){
+        const data = await this.deleteCart(_id)
+        return data
+    }
+
+    async deleteCartProduct(cartId, productId){
+        const data = await this.deleteProductCart(cartId, productId)
+        return data
     }
 }
 

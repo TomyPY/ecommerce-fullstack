@@ -1,194 +1,206 @@
-import { Console } from 'console'
 import fs from 'fs'
 
-class Contenedor{
+class SystemContainer {
 
-    constructor(file){
+    constructor(collection) {
 
-        this.file = file
-        this.fileRedeable = JSON.parse(fs.readFileSync(this.file,'utf8'))
-        this.products = this.fileRedeable['products']
-        this.carts = this.fileRedeable['carts']
-        this.admin = this.fileRedeable['admin']
+        this.file = 'databases/system/MyFile.json'
+        this.fileRedeable = JSON.parse(fs.readFileSync(this.file, 'utf8'))
+        this.collection = this.fileRedeable[collection]
 
     }
 
+    getProducts() {
+        return { res: this.collection ? this.collection : [], status: true, error: false }
+    }
 
-    async save(obj){
+    getProduct(_id) {
 
-        obj._id =  this.products.length + 1
-        obj.timestamp = new Date().getDate()
+        let data = this.collection.find(x => { return x._id == parseInt(_id) })
 
-        this.products.push(obj)
+        return { res: data?data:[], status: true, error: false }
 
-        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-            if(err){
-                console.log(err)
+    }
+
+    async saveProduct(product) {
+
+        product._id = this.collection.length + 1
+        product.timestamp = new Date().getDate()
+
+        if(product.thumbnail == ''){
+            product.thumbnail = 'https://icon-library.com/images/icon-picture/icon-picture-5.jpg'
+        }
+
+        if(!product.name || !product.price || !product.description || !product.stock){
+            return { res: false, status: false, error: 'All fields are required unless thumbnail' }
+        }
+
+        this.collection.push(product)
+
+        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+            if (err) {
+                return { res: false, status: false, error: err }
             }
         })
 
-        return obj
-    
+        return { res: true, status: true, error: false }
     }
 
-    getById(_id){
+    async updateProduct(product, _id) {
 
-        let obj=this.products.find(x => {return x._id == parseInt(_id)})
+        let objIndex = this.collection.findIndex(x => { return x._id == parseInt(_id) })
 
-        return obj
-
-    }
-
-    getAll(){
-        return this.products
-    }
-
-    async updateById(_id, obj){
-
-        let objIndex = this.products.findIndex(x => {return x._id == parseInt(_id)})
-
-        if (objIndex == -1){
-            return undefined
+        if (objIndex == -1) {
+            return { res: false, status: false, error: "The ID doesn't exist" }
         }
 
-        let oldProduct = this.products.map(element=>{
-            if(element._id == _id){
+        let oldProduct = this.collection.map(element => {
+            if (element._id == _id) {
                 return element
             }
         })
-        
-        obj._id = _id
-        obj.timestamp = oldProduct.timestamp
 
-        this.products[objIndex] = obj
+        product._id = _id
+        product.timestamp = oldProduct.timestamp
 
-        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-            if(err){
+        this.collection[objIndex] = product
+
+        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+            if (err) {
                 console.log(err)
-            }})
+            }
+        })
 
-        
-        return obj
-        
 
+        return { res: true, status: true, error: false }
     }
 
-    async deleteById(_id){
+    async deleteProduct(_id) {
 
-        let index=this.products.findIndex(x => {return x._id == parseInt(_id)})
-        
-        if(index==-1){
-            return undefined
+        let index = this.collection.findIndex(x => { return x._id == parseInt(_id) })
+
+        if (index == -1) {
+            return { res: false, status: false, error: "The ID doesn't exist" }
         }
 
-        let product = this.products[index]
+        let product = this.collection[index]
 
-        this.products.splice(index,1)
+        this.collection.splice(index, 1)
+
+        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+            if (err) {
+                console.log(err)
+            }
+        })
+
+        return { res: true, status: true, error: false }
+    }
+
+    getCarts(){
+        return { res: this.collection ? this.collection : [], status: true, error: false }
+    }
+
+    getCart(_id) {
+
+        const cartIndex = this.collection.findIndex(x => { return x._id == parseInt(_id) })
+
+        if (cartIndex==-1) {
+            return { res: false, status: false, error: "The cartID doesn't exist" }
+        }
+
+        return this.collection[cartIndex]
+    }
+
+    async saveCart() {
+
+        const cart = {
+            _id: 1, 
+            products: [], 
+            timestamp:Date.now()
+        }
+
+        this.collection.push(cart)
+
+        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+            if (err) {
+                return { res: false, status: false, error: err }
+            }
+        })
+
+        return { res: cart._id, status: true, error: err }
+    }
+
+    async updateCart(cartId, productId) {
+        let responseProduct = this.getProduct(productId)
+
+        if (responseProduct.res==[]) {
+            return { res: false, status: false, error: "The prodID doesn't exist" }
+        }
         
-        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-            if(err){
-                console.log(err)
-            }})
+        let responseCart = this.getCartById(cartId)
 
-        return product
-        
-    }
-
-    async deleteAll(){
-
-        await fs.promises.writeFile(this.file, JSON.stringify([]), err =>{
-            if(err){
-                console.log(err)
-            }else{
-                console.log("Object has been added!")
-            }})
-    }
-
-    getAdmin(){
-        return this.admin
-    }
-
-    async createCart(){
-
-        this.carritos.push({_id:1, products:[]})
-
-        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-            if(err){
-                console.log(err)
-            }})
-
-    }
-
-    getCart(){
-
-        if(this.carts.length <= 0 ){
-            this.carts.push({_id:1, products:[]})
+        if (!responseCart.status && responseCart.error=="The cartID doesn't exist") {
+            return { res: false, status: false, error: "The cartID doesn't exist" }
         }
 
-        return this.carts[0]
+        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+            if (err) {
+                return { res: false, status: false, error: err }
+            }
+        })
+
+        return { res: { cartId: cartId, prodId: prodId }, status: true, error: false }
     }
 
-    async addToCart(_id, productId){
+    async deleteCart(_id) {
+        let cartIndex = this.fileRedeable.carts.findIndex(x => { return x._id == parseInt(_id) })
 
-        let product = this.getById(productId)
-
-        if(!product){
-            return {ok:false, error:"Product doesn't exist"}
+        if(cartIndex==-1){
+            return { res: false, status: false, error: "The ID doesn't exist" }
         }
 
-        this.getCart(_id).products.push(product)
-
-        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-            if(err){
+        this.collection.splice(cartIndex, 1)
+        await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+            if (err) {
                 console.log(err)
-            }})
+            }
+        })
 
-        return {ok:true, error:false}
+        return { res: cart._id, status: true, error: false }
     }
 
-    async deleteCart(_id){
-       try{
-            let index = this.fileRedeable.carts.findIndex(x => {return x._id == parseInt(_id)})
-            this.carts.splice(index,1)
+    async deleteProductCart(cartId, productId) {
+        try {
 
-            await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-                if(err){
-                    console.log(err)
-                }})
+            let cartIndex = this.collection.findIndex(x => { return x._id == parseInt(cartId) })
 
-            return {ok:true, error:false}
+            if(cartIndex==-1){
+                return { res: false, status: false, error: "The cartID doesn't exist" }
+            }
 
-        }catch(err){
-            return {ok:false, error:err}
-        }
+            let cart = this.collection[cartIndex]
 
-    }
+            let productIndex = cart.products.findIndex(p => { return p._id == parseInt(productId) })
 
-    async deleteProductCart(_id, productId){
-        try{
+            if(productIndex==-1){
+                return { res: false, status: false, error: "The prodID doesn't exist" }
+            }
 
-            let index = this.fileRedeable.carts.findIndex(x => {return x._id == parseInt(_id)})
-            let cart = this.carts[index].products
+            cart.products.splice(productIndex, 1)
+            await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err => {
+                if (err) {
+                    return { res: false, status: false, error: err }
+                }
+            })
 
-            let productIndex = cart.findIndex(x => {return x._id == parseInt(productId)})
-
-            cart.splice(productIndex, 1)
-            await fs.promises.writeFile(this.file, JSON.stringify(this.fileRedeable), err =>{
-                if(err){
-                    console.log(err)
-                }})
-
-            return {ok:true, error:false}
-
-        }catch(err){
+            return { res: { cartId: _id, prodId: productId }, status: true, error: false }
+        } catch (err) {
             console.log(err)
-            return {ok:false, error:err}
+            return { res: false, status: false, error: err }
         }
 
     }
 
 }
 
-const database = new Contenedor('database/MyFile.json')
-
-export default database
+export default SystemContainer

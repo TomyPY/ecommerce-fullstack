@@ -1,28 +1,29 @@
-import FirebaseProductsDAO from './products/productsFirebaseDAO'
-import FirebaseCartsDAO from './products/cartsFirebaseDAO'
-import MongoProductsDAO from './products/productsMongoDAO'
-import MongoCartsDAO from './products/cartsMongoDAO'
-import SystemProductsDAO from './products/productsSystemDAO'
-import SystemCartsDAO from './products/cartsSystemDAO'
+//import FirebaseProductsDAO from './products/productsFirebaseDAO'
+//import FirebaseCartsDAO from './products/cartsFirebaseDAO'
+import MongoProductsDAO from './products/productsMongoDAO.js'
+import MongoCartsDAO from './carts/cartsMongoDAO.js'
+import SystemProductsDAO from './products/productsSystemDAO.js'
+import SystemCartsDAO from './carts/cartsSystemDAO.js'
 
-const {persistenceType} = require('../../config.js')
+import { persistenceType } from '../../config.js'
+import cart from '../mongoDB/models/cart.js';
 
-let productDao = null;
-let cartDao = null;
+let productsDAO = null;
+let cartsDAO = null;
 
-if (persistenceType === "system") {
-  productDao = new SystemProductsDAO();
-  cartDao = new SystemCartsDAO();
+if (persistenceType == "system") {
+  productsDAO = new SystemProductsDAO();
+  cartsDAO = new SystemCartsDAO();
 }
 
-if (persistenceType === "mongo") {
-  productDao = new MongoProductsDAO();
-  cartDao = new MongoCartsDAO();
+if (persistenceType == "mongo") {
+  productsDAO = new MongoProductsDAO();
+  cartsDAO = new MongoCartsDAO();
 }
 
-if (persistenceType === "firebase") {
-  productDao = new FirebaseProductsDAO();
-  cartDao = new FirebaseCartsDAO();
+if (persistenceType == "firebase") {
+  productsDAO = new FirebaseProductsDAO();
+  cartsDAO = new FirebaseCartsDAO();
 }
 
-export default { productDao, cartDao }
+export { productsDAO, cartsDAO }

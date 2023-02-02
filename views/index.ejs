@@ -23,10 +23,11 @@
 
             <div class="product-list">
                 <% products.forEach(function(product){ %>
+                    <%=product%>
                     <div class="product">
 
                         <div class="img-container">
-                            <img src="<%= product.thumbnail %>" onerror="this.onerror=null;this.src='https://icon-library.com/images/icon-picture/icon-picture-5.jpg';" alt="">
+                            <img src='<%= product.thumbnail %>' alt="">
                         </div>
 
                         <div class="product-details">

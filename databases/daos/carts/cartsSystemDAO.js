@@ -4,11 +4,7 @@ class CartsSystemDAO extends SystemContainer {
     constructor() {
         super("carts")
     }
-    async getAll(){
-        const data = await this.getCarts()
-        return data
-    }
-
+  
     async getById(_id){
         const data = await this.getCart(_id)
         return data
@@ -24,7 +20,7 @@ class CartsSystemDAO extends SystemContainer {
         return data
     }
 
-    async deleteById(_id){
+    async deleteCartById(_id){
         const data = await this.deleteCart(_id)
         return data
     }

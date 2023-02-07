@@ -2,7 +2,7 @@ import admin from 'firebase-admin'
 import fs from 'fs'
 const serviceAccount = JSON.parse(fs.readFileSync('databases/firebase/ecommerce-api-rest-daa9a-firebase-adminsdk-bpfk3-dd48347f14.json'))
 
-const initializeFirebase = async()=>{
+const connectFirebase = async()=>{
     try{
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
@@ -15,4 +15,4 @@ const initializeFirebase = async()=>{
     }
 }
 
-export default initializeFirebase
+export {connectFirebase}

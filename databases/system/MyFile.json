@@ -1,1 +1,1 @@
-{"products":[],"carts":[{"_id":1,"products":[]}]}
+{"products":[{"name":"asdasd","price":"123","description":"asd","stock":"123","thumbnail":"https://icon-library.com/images/icon-picture/icon-picture-5.jpg","_id":1,"timestamp":4,"quantity":1}],"carts":[{"_id":1,"products":[{"name":"asdasd","price":"123","description":"asd","stock":"123","thumbnail":"https://icon-library.com/images/icon-picture/icon-picture-5.jpg","_id":1,"timestamp":4,"quantity":1}],"timestamp":1675491271971}]}

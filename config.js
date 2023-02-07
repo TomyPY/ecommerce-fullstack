@@ -1,7 +1,7 @@
 import {config} from 'dotenv'
 config()
 
-const persistenceType = 'system'
+const persistenceType = 'firebase'
 const MONGO_CONN = process.env.MONGO_CONN
 const admin = true
 

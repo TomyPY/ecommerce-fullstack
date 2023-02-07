@@ -6,7 +6,7 @@ class CartsMongoDAO extends MongoContainer {
         super(cartModel)
     }
 
-    async getAll(_id) {
+    async getById(_id) {
         const data = await this.getCartById(_id)
         return data
     }
@@ -22,12 +22,12 @@ class CartsMongoDAO extends MongoContainer {
     }
 
     async updateById(product, id) {
-        const data = await this.updateProduct(product, id)
+        const data = await this.updateCart(product, id)
         return data
     }
 
-    async deleteById(id) {
-        const data = await this.deleteById(id)
+    async deleteCartProduct(cartId, productId) {
+        const data = await this.deleteFromCart(cartId, productId)
         return data
     }
 }

@@ -1,10 +1,9 @@
-import express, { urlencoded } from 'express'
+import express from 'express'
 import url from 'url'
 import path from 'path'
 
 import cartsRoute from './routers/carts.js'
 import productsRoute from './routers/products.js'
-import {connectMongo} from './databases/mongoDB/conn.js'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url)) 
 
@@ -42,5 +41,3 @@ app.listen(app.get('PORT'), (err) => {
     console.log(`Servidor escuchando el puerto ${app.get('PORT')}`)
  
 })
-connectMongo()
-

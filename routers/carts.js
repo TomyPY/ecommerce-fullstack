@@ -7,7 +7,7 @@ const router = Router()
 router.post('/', carts.createCart)
 
 //Get products of a cart
-router.get('/products', carts.getProducts)
+router.get('/:id/products', carts.getProducts)
 
 //Put a new product on an existing cart
 router.post('/:id/products', carts.updateProductToCart)

@@ -4,29 +4,29 @@ class CartsFirebaseDAO extends FirebaseContainer {
     constructor() {
         super("carts")
     }
-    async listAll(){
-            const data = await this.getAll();
-            return data;
+    async getById(_id) {
+        const data = await this.getCartById(_id)
+        return data
     }
 
-    async listById(id){
-        const data = await this.getById(id);
-        return data;
+    async createCart() {
+        const data = await this.saveCart()
+        return data
     }
 
-    async save(product){
-        const data = await this.saveProduct(product);
-        return data;
+    async deleteCartById(_id) {
+        const data = await this.deleteCart(_id)
+        return data
     }
 
-    async update(product, id){
-        const data = await this.updateProduct(product, id);
-        return data;
+    async updateById(product, id) {
+        const data = await this.updateCart(product, id)
+        return data
     }
 
-    async delete(id){
-        const data = await this.deleteById(id);
-        return data;
+    async deleteCartProduct(cartId, productId) {
+        const data = await this.deleteFromCart(cartId, productId)
+        return data
     }
 }
 

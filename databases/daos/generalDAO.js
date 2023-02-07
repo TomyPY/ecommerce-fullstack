@@ -1,29 +1,28 @@
-//import FirebaseProductsDAO from './products/productsFirebaseDAO'
-//import FirebaseCartsDAO from './products/cartsFirebaseDAO'
-import MongoProductsDAO from './products/productsMongoDAO.js'
-import MongoCartsDAO from './carts/cartsMongoDAO.js'
-import SystemProductsDAO from './products/productsSystemDAO.js'
-import SystemCartsDAO from './carts/cartsSystemDAO.js'
-
 import { persistenceType } from '../../config.js'
-import cart from '../mongoDB/models/cart.js';
 
 let productsDAO = null;
 let cartsDAO = null;
 
 if (persistenceType == "system") {
-  productsDAO = new SystemProductsDAO();
-  cartsDAO = new SystemCartsDAO();
+  const {default: ProductsSystemDAO} = import('./products/productsSystemDAO.js') 
+  const {default: CartsSystemDAO} = import('./products/productsSystemDAO.js')
+
+  productsDAO = new ProductsSystemDAO();
+  cartsDAO = new CartsSystemDAO();
 }
 
 if (persistenceType == "mongo") {
-  productsDAO = new MongoProductsDAO();
-  cartsDAO = new MongoCartsDAO();
+  const { default: ProductsMongoDAO } = await import('./products/productsMongoDAO.js')
+  const { default: CartsMongoDAO } = await import('./carts/cartsMongoDAO.js')
+  productsDAO = new ProductsMongoDAO();
+  cartsDAO = new CartsMongoDAO();
 }
 
 if (persistenceType == "firebase") {
-  productsDAO = new FirebaseProductsDAO();
-  cartsDAO = new FirebaseCartsDAO();
+  const { default: ProductsMongoDAO } = await import('./products/productsFirebaseDAO.js')
+  const { default: CartsFirebaseDAO } = await import('./carts/cartsFirebaseDAO.js')
+  productsDAO = new ProductsMongoDAO();
+  cartsDAO = new CartsFirebaseDAO();
 }
 
 export { productsDAO, cartsDAO }

@@ -4,28 +4,28 @@ class ProductsFirebaseDAO extends FirebaseContainer {
     constructor() {
         super("products")
     }
-    async listAll(){
-            const data = await this.getAll();
+    async getAll(){
+            const data = await this.getProducts();
             return data;
     }
 
-    async listById(id){
-        const data = await this.getById(id);
+    async getById(id){
+        const data = await this.getProduct(id);
         return data;
     }
 
-    async save(product){
+    async createProduct(product){
         const data = await this.saveProduct(product);
         return data;
     }
 
-    async update(product, id){
+    async updateById(product, id){
         const data = await this.updateProduct(product, id);
         return data;
     }
 
-    async delete(id){
-        const data = await this.deleteById(id);
+    async deleteById(id){
+        const data = await this.deleteProduct(id);
         return data;
     }
 }

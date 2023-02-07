@@ -1,184 +1,219 @@
+
 import firebase from 'firebase-admin'
+import {connectFirebase} from './conn.js'
+
+await connectFirebase()
 const db = firebase.firestore()
-const FieldValue = require('firebase-admin').firestore.FieldValue
+
+const FieldValue = firebase.firestore.FieldValue
 
 class ContenedorFirebase {
     constructor(collection) {
-        this.collection = collection
+        this.collection = db.collection(collection)
     }
 
-    async getAll() {
-        const query = db.collection(this.collection)
-        const querySnapShot = await query.get()
-        let docs = querySnapShot.docs
-        const data = docs.map((doc) => ({
-            id: parseInt(doc.id),
-            name: doc.data().name,
-            price: doc.data().price,
-            thumbnail: doc.data().thumbnail,
-            stock: doc.data().stock,
-            description: doc.data().description,
-            timestamp: doc.data().timestamp
-        }))
-        return data
+    async getProducts() {
+        try{
+            const querySnapShot = await this.collection.get()
+            const docs = await querySnapShot.docs.map(doc=>{return doc.data()})
+            
+            return {res:docs, error:false, description:false}
+        }catch(err){
+            return {res:docs, error:err.name, description:err.message}
+        }
     }
 
-    async getById(id) {
-        const query = db.collection(this.collection)
-        const doc = query.doc(`${id}`)
-        const item = await doc.get()
-        const data = item.data()
-        return data
+    async getProduct(id) {
+        try{
+            const doc = await this.collection.doc(`${id}`).get()
+            const data = doc.data()
+            return {res:data?data:[], error:false, description:false}
+        }catch(err){
+            return {res:false, error:err.name, description:err.message}
+        } 
     }
 
-    async saveProduct(object) {
-        const query = db.collection(this.collection)
-        const data = await this.getAll()
-        const ids = data.map((producto) => producto.id)
-        const idMaximo = Math.max(...ids)
-        
-        object.id = ids ? idMaximo : 1
-        object.timestamp = Date.now()
+    async saveProduct(product) {
+        try{
+            const data = await this.getProducts()
+            let id = 1
 
-        let doc = query.doc(`${object.id}`)
-        res = await doc.create(object)
-        return res
+            if(data.error){
+                return {res:false, error:data.error, description:data.description}
+            }
+
+            if(data.res.length > 0){
+                id = data.res.reduce((acc, cur)=>{Math.max(acc, cur._id), -Infinity})+1
+            }
+            
+            product._id = id
+            product.timestamp = Date.now()
+            product.thumbnail = product.thumbnail?product.thumbnail:'https://icon-library.com/images/icon-picture/icon-picture-5.jpg'
+            
+            console.log(product)
+
+            let doc = await this.collection.doc(`${product._id}`).set(product)
+
+            return {res:product._id, error:false, description:false}
+        }catch(err){
+            console.log(err)
+            return {res:false, error:err.name, description:err.message}
+        }
     }
 
-    async updateProduct(object, id) {
-        const query = db.collection(this.collection)
-        const data = await this.getById(id)
-        object.id = id
-        object.timestamp = data.timestamp
-        let doc = query.doc(`${object.id}`)
-        await doc.update(object)
+    async updateProduct(product, id) {
+        try{
+            let data = await this.getProduct(id)
+
+            if(data.error){
+                return {res:false, error:data.error, description:data.description}
+            }else if(!data.res){
+                return {res:false, error:'ID', description:'The product doesnt exist'}
+            }
+            
+            product._id = data.res._id
+            product.timestamp = data.res.timestamp
+            console.log(product)
+
+            await this.collection.doc(`${id}`).update(product)
+            return {res:product._id, error:false, description:false}
+        }catch(err){
+            return {res:false, error:err.name, description:err.message}
+        }
     }
             
-    async deleteById(id) {
-        const query = db.collection(this.collection)
-        const data = await this.getById(id)
-        if (data == undefined) {
-            return false
-        } else {
-            let doc = query.doc(`${id}`)
-            await doc.delete()
+    async deleteProduct(id) {
+        try{
+
+            const data = await this.getProduct(id)
+            if (!data.res) {
+                return {res:false, error:'ID', description:'The product ID doesnt exist'}
+            } 
+            await this.collection.doc(`${id}`).delete()
+            return {res:id, error:false, description:false}
+        }catch(err){
+            return {res:false, error:err.name, description:err.message}
         }
-    }
-
-    async getAllCarts() {
-        const query = db.collection(this.collection)
-        const querySnapShot = await query.get()
-        let docs = querySnapShot.docs
-
-        if (!docs){
-            return false
-        }
-
-        const data = docs.map((doc) => ({
-            id: doc.id,
-            timestamp: doc.data().timestamp,
-            productos: doc.data().productos
-        }))
-        return (data)
+        
     }
 
     async getCartById(id) {
-        const query = db.collection(this.collection) 
-        const doc = query.doc(`${id}`)
-        const item = await doc.get()
-        const data = item.data()
-        if (data == undefined) {
-            return false
-        } else {
-            const item = await doc.get()
-            const data = item.data().productos
-            return data
+        try{
+
+            const doc = await this.collection.doc(`${id}`).get()
+            const data = await doc.data()
+
+            if (data == undefined) {
+                await this.saveCart()
+
+                const cart = {_id:1, products:[]}
+
+                return {res:cart, error:false, description:false}         
+            } 
+
+            return {res:data, error:false, description:false}
+
+        }catch(err){
+            return {res:false, error:err.name, description:err.message}
         }
         
     }
 
     async saveCart() {
-        const query = db.collection(this.collection)
-        const doc = query.doc(`${main.userLogged}`)
-        const item = await doc.get()
-        const data = item.data()
-        if (data == undefined) {
-            return true
+
+        const cart = {
+            _id: 1,
+            products: []
         }
-        return false
+
+        await this.collection.doc(`${1}`).set(cart)
+        return {res:1, error:false, description:false}
     }
 
     async deleteCart(id) {
-        const query = db.collection(this.collection)
-        const data = await this.getById(id)
-        if (data == undefined) {
-            return false
-        } 
+        try{
 
-        let doc = query.doc(`${id}`)
-        await doc.delete()
-        return true
-    }
+            const data = await this.getById(id)
 
-    async addToCart(id, cant) {
+            if (data.error) {
+                return {res:false, error:data.error, description:data.description}
+            } 
 
-        const queryProds = db.collection("products")
-        const docFind = queryProds.doc(`${id}`)
-        const itemFind = await docFind.get()
-        const dataFind = itemFind.data()
-        const query = db.collection(this.collection)
-        const doc = query.doc(`${id}`)
-        const user = await doc.get()
-        const findCart = user.data()
-        const addedProduct = this.productBuilder(dataFind, cant)
+            await this.collection.doc(`${id}`).delete()
+            return {res:id, error:false, description:false}
 
-        if (await this.productExistence(id) == -1) {
-            await db.collection(`${this.collection}`).doc(`${id}`)
-                .update('products', FieldValue.arrayUnion(addedProduct), { merge: true })
-        } else {
-            const eraser = await findCart.products[await this.productExistence(id)]
-            await db.collection(`${this.collection}`).doc(`${id}`)
-                .update('products', FieldValue.arrayRemove(eraser))
-            await db.collection(`${this.collection}`).doc(`${id}`)
-                .update('products', FieldValue.arrayUnion(addedProduct), { merge: true })
+        }catch(err){
+            return {res:false, error:err.name, description:err.message}
         }
-       
     }
 
-    async deleteFromCart(id, idProd) {
-        const query = db.collection(this.collection)
-        const doc = query.doc(`${id}`)
-        const item = await doc.get()
-        const data = item.data()
-        const eraser = await data.productos[await this.productExistence(idProd)]
-        await db.collection(`${this.collection}`).doc(`${id}`).update('products', FieldValue.arrayRemove(eraser))  
-    }
+    async updateCart(cartId, prodId) {
 
-    productBuilder(source, cant) {
-        const product = {
-            id: source.id,
-            timestamp: source.timestamp,
-            name: source.nombre,
-            description: source.detalle,
-            thumbnail: source.thumbnail,
-            price: source.precio,
-            stock: cant,
+        try{
+            const prodCollection =await db.collection("products")
+            const productSnapshot =await prodCollection.doc(`${prodId}`).get()
+            const product = await productSnapshot.data()
+
+            if(!product){
+                return {res:false, error:"ID", description:"Product ID doesnt exist"}
+            }
+
+            const cartSnapshot =await this.collection.doc(`${cartId}`).get()
+            const cart = await cartSnapshot.data()
+
+            if(!cart){
+                return {res:false, error:"ID", description:"Cart ID doesnt exist"}
+            }
+
+            const productIndex = cart.products.findIndex(p=>{return parseInt(p._id) == parseInt(prodId)})
+            if (productIndex != -1) {
+                cart.products[productIndex].quantity+=1
+            } else {
+                product.quantity = 1
+                cart.products.push(product)
+            }
+
+            this.collection.doc(`${cartId}`).update(cart)
+
+            return { res: { cartId: cartId, prodId: prodId }, error: false, description: false }
+        }catch(err){
+            return { res: false, error: err.name, description: err.message }
         }
-        return producto
     }
 
-    async newCart(id, products) {
-        const query = db.collection(this.collection)
-        const cart = { id: id, timestamp: Date.now(), products: products }
-        let doc = query.doc(`${id}`)
-        await doc.create(cart)
+    async deleteFromCart(cartId, prodId) {
+        try{
+            const prodCollection =await db.collection("products")
+            const productSnapshot =await prodCollection.doc(`${prodId}`).get()
+            const product = await productSnapshot.data()
+
+            if(!product){
+                return {res:false, error:"ID", description:"Product ID doesnt exist"}
+            }
+
+            const cartSnapshot =await this.collection.doc(`${cartId}`).get()
+            const cart = await cartSnapshot.data()
+
+            if(!cart){
+                return {res:false, error:"ID", description:"Cart ID doesnt exist"}
+            }
+
+            
+            const productIndex = cart.products.findIndex(p=>{return parseInt(p._id) == parseInt(prodId)})
+            if (cart.products[productIndex].quantity > 1) {
+                cart.products[productIndex].quantity-=1
+            } else {
+                cart.products.splice(productIndex, 1)
+            }
+
+            this.collection.doc(`${cartId}`).update(cart)
+
+            return { res: { cartId: cartId, prodId: prodId }, error: false, description: false }
+        }catch(err){
+            return { res: false, error: err.name, description: err.message }
+        }  
     }
 
-    async productExistence(id) {
-        const data = await this.getCartById(id)
-        const result = await data.findIndex((producto) => producto.id == id)
-        return result
-    }
 }
 
 export default ContenedorFirebase

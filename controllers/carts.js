@@ -31,6 +31,7 @@ const getProducts = async (req, res) => {
     if(response.error){
         console.log(response)
         res.json({ error: "400", route: `http://localhost:8080/api/cart/${req.params.id}/products`, method: "get", description: response.description })
+        return
     }
 
     let cart = response.res

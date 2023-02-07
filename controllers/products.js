@@ -82,8 +82,10 @@ const deleteById = async (req, res) => {
 
     if (response.error=="ID") {
         res.json({ error: "400", route: "http://localhost:8080/api/products", method: "delete", description: "Product doesn't exist" })
+        return
     }else if (response.error){
         res.json({ error: "500", route: "http://localhost:8080/api/products", method: "delete", description: response.description })
+        return
     }
 
     res.json({ complete: 'Delete has been completed' })

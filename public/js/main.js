@@ -108,13 +108,9 @@ if(deleteAdminButtons){
     deleteAdminButtons.forEach(element =>{
 
         element.addEventListener('click', (e)=>{
-    
             let _id = e.target.dataset.id
-    
             deleteProduct(_id)
-    
             window.location.reload()
-    
         })
     
     })
